@@ -1,0 +1,14 @@
+# Ignore image assets
+public/assets/img/
+
+# Dependencies
+node_modules/
+.npm
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
