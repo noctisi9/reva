@@ -1300,17 +1300,20 @@ a {
     </div>
     <!-- ===================== LANDING PAGE ===================== -->
     <section id="landing-page">
-        <header class="reva-header">
-            <div class="brand">REVA</div>
-            <nav>
-                <ul>
-                    <li><a href="discovery.html">DISCOVERY</a></li>
-                    <li><a href="healing.html">HEALING</a></li>
-                    <li><a href="community.html">COMMUNITY</a></li>
-                    
-                </ul>
-            </nav>
-        </header>
+<header class="reva-header">
+    <div class="brand">REVA</div>
+    <div class="header-right">
+        <div id="user-info" style="font-size: 12px; font-weight: 700; color: #00ffff; text-transform: uppercase; letter-spacing: 1px;"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin" data-size="medium" data-logo_alignment="left"></div>
+        <nav>
+            <ul>
+                <li><a href="discovery.html">DISCOVERY</a></li>
+                <li><a href="healing.html">HEALING</a></li>
+                <li><a href="community.html">COMMUNITY</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
         <div class="hero-container">
             <div class="hero-text-block">
@@ -1531,55 +1534,41 @@ a {
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script type="module">
-  // 🔹 Firebase imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
-  import { getAuth, GoogleAuthProvider, signInWithCredential } 
-  from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithCredential, onAuthStateChanged } 
+    from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
-  // 🔹 Your Firebase config
-  const firebaseConfig = {
-  apiKey: "AIzaSyBOG4WGnvMUXcGxOHadLilkhpZNNFBgPEs",
-  authDomain: "reva-c414f.firebaseapp.com",
-  projectId: "reva-c414f",
-  storageBucket: "reva-c414f.firebasestorage.app",
-  messagingSenderId: "818091219009",
-  appId: "1:818091219009:web:0aca995cffab42618e0ec0",
-  measurementId: "G-D2GDTGJ4Z8"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBOG4WGnvMUXcGxOHadLilkhpZNNFBgPEs",
+        authDomain: "reva-c414f.firebaseapp.com",
+        projectId: "reva-c414f",
+        storageBucket: "reva-c414f.firebasestorage.app",
+        messagingSenderId: "818091219009",
+        appId: "1:818091219009:web:0aca995cffab42618e0ec0"
+    };
 
-  // 🔹 Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // 🔥 IMPORTANT: make function global (Google needs this)
-  window.handleCredentialResponse = function(response) {
-    try {
-      // 🔹 Convert Google token into Firebase credential
-      const credential = GoogleAuthProvider.credential(response.credential);
+    onAuthStateChanged(auth, (user) => {
+        const userInfoDiv = document.getElementById("user-info");
+        if (user) {
+            userInfoDiv.innerText = user.displayName;
+        } else {
+            userInfoDiv.innerText = "";
+        }
+    });
 
-      // 🔹 Sign in with Firebase
-      signInWithCredential(auth, credential)
-        .then((result) => {
-          const user = result.user;
-
-          console.log("✅ Signed in:", user);
-          console.log("Email:", user.email);
-          console.log("Name:", user.displayName);
-
-          // 👉 OPTIONAL: redirect after login
-          window.location.href = "discovery.html";
-
-        })
-        .catch((error) => {
-          console.error("❌ Login error:", error);
-        });
-
-    } catch (err) {
-      console.error("❌ Token handling failed:", err);
-    }
-  };
+    window.handleCredentialResponse = function(response) {
+        const credential = GoogleAuthProvider.credential(response.credential);
+        signInWithCredential(auth, credential)
+            .then(() => {
+                window.location.href = "discovery.html";
+            })
+            .catch((error) => {
+                console.error("Login failed:", error);
+            });
+    };
 </script>
 </body>
 </html>
