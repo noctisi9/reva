@@ -1286,7 +1286,46 @@ a {
 .browse-btn * { position: relative; z-index: 1; }
 
 .browse-btn:active { transform: scale(0.97); }
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the name and nav list */
+    gap: 10px;
+}
 
+.user-display {
+    font-size: 14px;
+    font-weight: 800;
+    color: #00ffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    height: 20px; /* Prevents layout jump when name loads */
+}
+
+.nav-list {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    list-style: none;
+}
+
+#logout-btn {
+    background: transparent;
+    border: 1px solid #ff4b4b;
+    color: #ff4b4b;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+#logout-btn:hover {
+    background: #ff4b4b;
+    color: #fff;
+}
     </style>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -1303,13 +1342,19 @@ a {
 <header class="reva-header">
     <div class="brand">REVA</div>
     <div class="header-right">
-        <div id="user-info" style="font-size: 12px; font-weight: 700; color: #00ffff; text-transform: uppercase; letter-spacing: 1px;"></div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin" data-size="medium" data-logo_alignment="left"></div>
+        <div id="user-info" class="user-display"></div>
+
         <nav>
-            <ul>
+            <ul class="nav-list">
                 <li><a href="discovery.html">DISCOVERY</a></li>
                 <li><a href="healing.html">HEALING</a></li>
                 <li><a href="community.html">COMMUNITY</a></li>
+                <li id="auth-controls">
+                    <div id="login-btn-wrapper">
+                        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin" data-size="medium"></div>
+                    </div>
+                    <button id="logout-btn" style="display:none;">SIGN OUT</button>
+                </li>
             </ul>
         </nav>
     </div>
@@ -1535,7 +1580,7 @@ a {
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithCredential, onAuthStateChanged } 
+    import { getAuth, GoogleAuthProvider, signInWithCredential, onAuthStateChanged, signOut } 
     from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -1550,25 +1595,40 @@ a {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const userInfoDiv = document.getElementById("user-info");
+    const loginWrapper = document.getElementById("login-btn-wrapper");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // Monitor Auth State
     onAuthStateChanged(auth, (user) => {
-        const userInfoDiv = document.getElementById("user-info");
         if (user) {
             userInfoDiv.innerText = user.displayName;
+            loginWrapper.style.display = "none";
+            logoutBtn.style.display = "block";
         } else {
             userInfoDiv.innerText = "";
+            loginWrapper.style.display = "block";
+            logoutBtn.style.display = "none";
         }
     });
 
+    // Handle Login (Redirect removed)
     window.handleCredentialResponse = function(response) {
         const credential = GoogleAuthProvider.credential(response.credential);
         signInWithCredential(auth, credential)
-            .then(() => {
-                window.location.href = "discovery.html";
+            .then((result) => {
+                console.log("Logged in as:", result.user.displayName);
+                // Page stays at index.html
             })
-            .catch((error) => {
-                console.error("Login failed:", error);
-            });
+            .catch((error) => console.error("Login Error:", error));
     };
+
+    // Handle Logout
+    logoutBtn.addEventListener("click", () => {
+        signOut(auth).then(() => {
+            console.log("User signed out");
+        });
+    });
 </script>
 </body>
 </html>
