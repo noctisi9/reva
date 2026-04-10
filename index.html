@@ -1288,9 +1288,16 @@ a {
 .browse-btn:active { transform: scale(0.97); }
 
     </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-
+<div id="g_id_onload"
+         data-client_id="818091219009-csum89vshcl86u4lqf1onmks0v9k4j20.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="true">
+    </div>
     <!-- ===================== LANDING PAGE ===================== -->
     <section id="landing-page">
         <header class="reva-header">
@@ -1300,7 +1307,7 @@ a {
                     <li><a href="discovery.html">DISCOVERY</a></li>
                     <li><a href="healing.html">HEALING</a></li>
                     <li><a href="community.html">COMMUNITY</a></li>
-                    <li><button class="join-us">LOGIN</button></li>
+                    
                 </ul>
             </nav>
         </header>
@@ -1521,7 +1528,58 @@ a {
 
     </section>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<script src="main.js"></script>
+<script type="module">
+  // 🔹 Firebase imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithCredential } 
+  from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
+  // 🔹 Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOG4WGnvMUXcGxOHadLilkhpZNNFBgPEs",
+    authDomain: "reva-c414f.firebaseapp.com",
+    projectId: "reva-c414f",
+    storageBucket: "reva-c414f.firebasestorage.app",
+    messagingSenderId: "818091219009",
+    appId: "1:818091219009:web:0aca995cffab42618e0ec0",
+    measurementId: "G-D2GDTGJ4Z8"
+  };
+
+  // 🔹 Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+
+  // 🔥 IMPORTANT: make function global (Google needs this)
+  window.handleCredentialResponse = function(response) {
+    try {
+      // 🔹 Convert Google token into Firebase credential
+      const credential = GoogleAuthProvider.credential(response.credential);
+
+      // 🔹 Sign in with Firebase
+      signInWithCredential(auth, credential)
+        .then((result) => {
+          const user = result.user;
+
+          console.log("✅ Signed in:", user);
+          console.log("Email:", user.email);
+          console.log("Name:", user.displayName);
+
+          // 👉 OPTIONAL: redirect after login
+          window.location.href = "discovery.html";
+
+        })
+        .catch((error) => {
+          console.error("❌ Login error:", error);
+        });
+
+    } catch (err) {
+      console.error("❌ Token handling failed:", err);
+    }
+  };
+</script>
 </body>
 </html>
